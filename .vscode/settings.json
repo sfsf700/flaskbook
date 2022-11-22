@@ -1,0 +1,12 @@
+{
+  "python.linting.flake8Enabled": true, //PEP8に沿った書き方のコードかどうかを自動チェック
+  "python.linting.flake8Args": [
+    "--max-line-length=88" // 1行に88文字まで
+  ],
+  "python.formatting.provider": "black", //PEP8に沿った書き方にコードを自動整形
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": { //import文をPEP8に沿った書き方に自動的に並べ替える設定
+    "source.organizeImports": true
+  },
+  "python.linting.mypyEnabled": true //タイプヒントの型チェック
+}
