@@ -1,5 +1,11 @@
-.crud {
-  font-style: italic;
-  font-size: 24px;
-  color: brown;
+table {
+  /* 隣接するボーダーに重ねて１本に表示する */
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  /* 1pxの実線にして色を調節 */
+  border: 1px solid #c0c0c0;
 }
