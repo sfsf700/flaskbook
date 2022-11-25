@@ -5,7 +5,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-class User(db.Model, UserMixin):
+class User(UserMixin, db.Model):
     # テーブル名
     __tablename__ = "users"
 
@@ -18,6 +18,8 @@ class User(db.Model, UserMixin):
     updated_at = db.Column(
         db.DateTime, default=datetime.now, onupdate=datetime.now
     )
+
+    user_images = db.relationship("UserImage", backref="user")
 
     # パスワードセットのプロパティ
     @property
