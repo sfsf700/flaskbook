@@ -9,7 +9,7 @@ dt = Blueprint("detector", __name__, template_folder="templates")
 def index():
     # User と UserImage を join(テーブル結合) して画像一覧を取得する
     user_images = (
-        db.session.query(user, UserImage)
+        db.session.query(User, UserImage)
         .join(UserImage)
         .filter(User.id == UserImage.user_id)
         .all
