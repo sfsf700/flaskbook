@@ -9,7 +9,7 @@ import torchvision
 from apps.app import db
 from apps.crud.models import User
 
-from apps.detector.forms import UploadImageForm, DetectorForm
+from apps.detector.forms import DeleteForm, UploadImageForm, DetectorForm
 from apps.detector.models import UserImage, UserImageTag
 from flask import (
     Blueprint,
@@ -34,12 +34,12 @@ def index():
         db.session.query(User, UserImage)
         .join(UserImage)
         .filter(User.id == UserImage.user_id)
-        .all
+        .all()
     )
 
     # タグ一覧を取得
     user_image_tag_dict = {}
-    for user_image in user_images():
+    for user_image in user_images:
         # 画像に紐づくタグ一覧を取得
         user_image_tags = (
             db.session.query(UserImageTag)
@@ -50,6 +50,10 @@ def index():
 
     # 物体検知フォームをインスタンス化する
     detector_form = DetectorForm()
+
+    # DeleteFormをインスタンス化
+    delete_form = DeleteForm()
+
     return render_template(
         "detector/index.html",
         user_images=user_images,
@@ -57,6 +61,8 @@ def index():
         user_image_tag_dict=user_image_tag_dict,
         # 物体検知フォームをテンプレートに渡す
         detector_form=detector_form,
+        # 画像削除フォームをテンプレートに渡す
+        delete_form=delete_form,
     )
 
 
@@ -226,4 +232,27 @@ def detect(image_id):
         current_app.logger.error(e)
         return redirect(url_for("detector.index"))
     
+    return redirect(url_for("detector.index"))
+
+
+@dt.route("/images/delete/<string:image_id>", methods=["POST"])
+# 削除処理はログイン必須
+@login_required
+def delete_image(image_id):
+    try:
+        # user_image_tagsテーブルからレコードを削除
+        db.session.query(UserImageTag).filter(
+            UserImageTag.user_image_id == image_id
+        ).delete()
+        # user_imagesテーブルからレコードを削除
+        db.session.query(UserImage).filter(UserImage.id == image_id).delete()
+
+        db.session.commit()
+
+    except SQLAlchemyError as e:
+        flash("画像削除処理でエラーが発生しました。")
+        # エラーログ出力
+        current_app.logger.error(e)
+        db.session.rollback()
+
     return redirect(url_for("detector.index"))

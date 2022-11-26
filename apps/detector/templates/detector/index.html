@@ -17,12 +17,24 @@
 </div>
 
 <!--画像一覧を表示-->
-{% for user_image in user_images() %}
+{% for user_image in user_images %}
 <div class="card col-md-7 dt-image-content">
   <header class="d-flex justify-content-between">
     <div class="dt-item-username">{{ user_image.User.username }}</div>
     <!--物体検知フォーム-->
     <div class="d-flex flex-row-revers">
+      <!--削除ボタン-->
+      <div class="p-2">
+        <form action="{{ url_for('detector.delete_image',
+            image_id = user_image.UserImage.id) }}" method="POST">
+          {{ delete_form.csrf_token }}
+          {% if current_user.id == user_image.User.id %}
+          {{ delete_form.submit(class="btn btn-danger") }}
+          {% else %}
+          {{ delete_form.submit(class="btn btn-danger", disabled="disabled") }}
+          {% endif %}
+        </form>
+      </div>
       <div class="p-2">
         <form action="{{ url_for('detector.detect', image_id=user_image.UserImage.id) }}" method="POST">
           {{ detector_form.csrf_token }}
