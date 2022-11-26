@@ -8,5 +8,6 @@
   "editor.codeActionsOnSave": { //import文をPEP8に沿った書き方に自動的に並べ替える設定
     "source.organizeImports": true
   },
-  "python.linting.mypyEnabled": true //タイプヒントの型チェック
+  "python.linting.mypyEnabled": true,
+  "python.linting.enabled": false //タイプヒントの型チェック
 }
