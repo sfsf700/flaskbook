@@ -28,7 +28,7 @@
       </div>
       {% endif %}
       <ul class="navbar-nav">
-        {% if current_user.id_authenticated %}
+        {% if current_user.is_authenticated %}
         <li class="nav-item">
           <span class="nav-link">{{ current_user.username }}</span>
         </li>
