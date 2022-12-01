@@ -4,7 +4,7 @@ from flask.helpers import get_root_path
 from werkzeug.datastructures import FileStorage
 from apps.detector.models import UserImage
 
-# 画像一覧画面のテスト
+## 画像一覧画面のテスト
 # 未ログイン時
 def test_index(client):
 
@@ -30,7 +30,7 @@ def test_index_signup(client):
     assert "ログアウト" in rv.data.decode()
     assert "画像新規登録" in rv.data.decode()
 
-# 画像アップロード画面のテスト
+## 画像アップロード画面のテスト
 # 未ログイン時
 def test_upload_no_auth(client):
     rv = client.get("/upload", follow_redirects=True)
@@ -78,3 +78,47 @@ def test_upload_signup_post(client):
 
     user_image = UserImage.query.first()
     assert user_image.image_path in rv.data.decode()
+
+
+## 物体検知とタグによる検索機能テスト
+# バリデートエラー時
+def test_detect_no_user_image(client):
+    signup(client, "admin", "flaskbook@example.com", "password")
+    upload_image(client, "detector/testdata/dog.jpg")
+    # 存在しないIDを指定
+    rv = client.post("/detect/notexistid", follow_redirects=True)
+    # apps/detector/views.py  def detect(image_id):
+    assert "物体検知対象の画像が存在しません。" in rv.data.decode()
+
+# 物体検知成功時
+def test_detect(client):
+    signup(client, "admin", "flaskbook@example.com", "password")
+    upload_image(client, "detector/testdata/dog.jpg")
+    user_image = UserImage.query.first()
+
+    # 物体検知を実行
+    rv = client.post(f"/detect/{user_image.id}", follow_redirects=True)
+    user_image = UserImage.query.first()
+
+    assert user_image.image_path in rv.data.decode()
+    assert "dog" in rv.data.decode()
+
+# タグ検索時
+def test_detect_search(client):
+    signup(client, "admin", "flaskbook@example.com", "password")
+    upload_image(client, "detector/testdata/dog.jpg")
+    user_image = UserImage.query.first()
+
+    client.post(f"/detect/{user_image.id}", follow_redirects=True)
+    # dog で検索する
+    rv = client.get("/images/search?search=dog")
+    # dogタグの画像があることを確認
+    assert user_image.image_path in rv.data.decode()
+    # dog があることを確認
+    assert "dog" in rv.data.decode()
+
+    rv = client.get("/images/search?search=test")
+    # dogタグの画像がないことを確認
+    assert user_image.image_path not in rv.data.decode()
+    # dogがないことを確認
+    assert "dog" not in rv.data.decode()
