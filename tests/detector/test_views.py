@@ -122,3 +122,15 @@ def test_detect_search(client):
     assert user_image.image_path not in rv.data.decode()
     # dogがないことを確認
     assert "dog" not in rv.data.decode()
+
+
+## 画像削除機能
+def test_delete(client):
+    signup(client, "admin", "flaskbook@example.com", "password")
+    upload_image(client, "detector/testdata/dog.jpg")
+
+    user_image = UserImage.query.first()
+    image_path = user_image.image_path
+    rv = client.post(f"/images/delete/{user_image.id}", follow_redirects=True)
+
+    assert image_path not in rv.data.decode()
